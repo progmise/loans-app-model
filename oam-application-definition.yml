@@ -1,26 +1,46 @@
-# OAM application definition — app-model repo for <APPLICATION>.
-# metadata.version is the release version; bump it per release.
+# OAM application definition — app-model repo for loans.
 kind: Application
 version: v2
 metadata:
-  name: <APPLICATION>
-  version: 0.0.1
-environments: []
-  # - name: pro
-  #   type: production
-  #   infrastructures:
-  #     - id: <component>-pro
-  #       type: vercel
-  #       properties:
-  #         project: <component>
-  #         orgId: VERCEL_ORG_ID
-  #         projectId: VERCEL_PROJECT_ID
-  #         credentialsId: VERCEL_TOKEN
-trails: []
-components: []
-  # - name: <component>
-  #   repo: progmise/<component>
-  #   version: "0.1.0"
-  #   rollback_version: "0.0.9"
-  #   needs: []
-  #   infra: [<component>-pro]
+  name: loans
+  version: 0.1.0
+environments:
+  - name: pre
+    type: preproduction
+    infrastructures:
+      - id: loans-api-pre
+        type: vercel
+        properties:
+          project: loans-api
+          orgId: VERCEL_ORG_ID
+          projectId: VERCEL_PROJECT_ID
+          credentialsId: VERCEL_TOKEN
+  - name: pro
+    type: production
+    infrastructures:
+      - id: loans-api-pro
+        type: vercel
+        properties:
+          project: loans-api
+          orgId: VERCEL_ORG_ID
+          projectId: VERCEL_PROJECT_ID
+          credentialsId: VERCEL_TOKEN
+      - id: docker-hub
+        type: artifact-store
+        properties:
+          registry: docker.io
+          project-path: progmise
+          usernameId: DOCKER_USERNAME
+          passwordId: DOCKER_TOKEN
+trails:
+  - name: pre-pro-trails
+    environments:
+      - name: pre
+        order: 1
+      - name: pro
+        order: 2
+components:
+  - name: loans-api
+    repo: progmise/loans-api
+    version: "0.1.0"
+    needs: []
